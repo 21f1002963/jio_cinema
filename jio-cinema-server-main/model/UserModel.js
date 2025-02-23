@@ -88,6 +88,14 @@ userSchema.pre("save", function (next) {
     }
 
 })
+
+userSchema.post("save", function(next){
+    console.log('New user created');
+    this["_id"] = undefined;
+    this.__v = undefined;
+    this.password= undefined;
+});
+
 // this model -> will have queries 
 const UserModel = mongoose.model("userModel", userSchema);
 module.exports = UserModel;

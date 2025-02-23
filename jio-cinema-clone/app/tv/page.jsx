@@ -2,8 +2,7 @@ import ListingSection from '@/components/sections/listing-section'
 import { api, ENDPOINT } from '@/lib/api';
 import React from 'react'
 
-
-const SportsPage = (props) => {
+const TvShows = (props) => {
   const list = [
     {
       label: "Comedy",
@@ -45,4 +44,4 @@ const SportsPage = (props) => {
   );
 }
 
-export default SportsPage
+export default TvShows

@@ -31,7 +31,6 @@ export const ENDPOINT = {
   fetchCrimeTvShows: `/tv/crime`,
   fetchDramaTvShows: `/tv/drama`,
   fetchMysteryTvShows: `/tv/mystery`,
-
   getTvShowsDetails: (id) => `/tv/details?id=${id}`,
 
   fetchAllStreamingVideos: `/video`,

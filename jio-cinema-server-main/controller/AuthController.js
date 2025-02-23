@@ -20,12 +20,32 @@ const signupController = async function (req, res) {
     try {
         // add it to the db 
         const userObject = req.body;
+
+        if(!userObject.email || !userObject.password) {
+            return res.status(400).json({
+                message: 'Email or password is missing',
+                status: "failure"
+            });
+        }
+
+        const saltRounds = 10; 
+        const hashedPassword = await bcrypt.hash(userObject.password, saltRounds);
+
+        const newUserObject = {
+            ...userObject,
+            password: hashedPassword,
+        };
+
         //   data -> req.body
-        let newUser = await UserModel.create(userObject);
+        let newUser = await UserModel.create(newUserObject);
         // send a response 
         res.status(201).json({
             "message": "user created successfully",
-            user: newUser,
+            user: {
+                email: newUser.email,
+                name: newUser.name, 
+                _id: newUser._id,
+              },
             status: "success"
         })
     } catch (err) {
@@ -38,18 +58,14 @@ const signupController = async function (req, res) {
 }
 const loginController = async function (req, res) {
     try {
-
         /***
          * 1. enable login -> tell the client that user is logged In
          *      a. email and password 
          **/
-
         let { email, password } = req.body;
         let user = await UserModel.findOne({ email });
         if (user) {
-            console.log(password,user.password);
             let areEqual = await bcrypt.compare(password,user.password);
-            console.log("res",areEqual)
             if (areEqual) {
                 // user is authenticated
                 /* 2. Sending the token -> people remember them
@@ -155,6 +171,7 @@ const resetPasswordController = async function (req, res) {
          * **/
 
         const user = await UserModel.findOne({ email });
+
         if (user) {
             if (otp && user.token == otp) {
                 let currentTime = Date.now();
@@ -207,14 +224,14 @@ const protectRouteMiddleWare = async function (req, res, next) {
             console.log("authenticated");
             next();
         }
-    } catch (err) {
+    } catch(err) {
         res.status(500).json({
             message: err.message,
             status: "failure"
         })
-
     }
 }
+
 const isAdminMiddleWare = async function (req, res, next) {
     // has to check whether the role of user is admin or not 
     try {
@@ -241,6 +258,7 @@ const isAdminMiddleWare = async function (req, res, next) {
     }
 
 }
+
 const isAuthorizedMiddleWare = function (allowedRoles) {
     return async function (req, res, next) {
         try {
@@ -267,6 +285,7 @@ const isAuthorizedMiddleWare = function (allowedRoles) {
         }
     }
 }
+
 const logoutController = function (req, res) {
     res.cookie("JWT", "dsjfbmdjbhsf", { maxAge: Date.now(), httpOnly: true, path: "/" });
 
